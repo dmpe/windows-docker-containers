@@ -1,0 +1,85 @@
+---
+- hosts: localhost
+  connection: local
+  vars: 
+    res_group: WindowsSACTest
+    network_name: SACTest-vnet
+  tasks:
+    - name: Create resource group
+      azure_rm_resourcegroup:
+        name: "{{ res_group }}"
+        location: westeurope 
+
+    - name: Create virtual network
+      azure_rm_virtualnetwork:
+        resource_group: "{{ res_group }}"
+        name: "{{ network_name }} "
+        address_prefixes: "10.0.1.0/24"
+
+    - name: Add subnet + associate with VNet
+      azure_rm_subnet:
+        resource_group: "{{ res_group }}"
+        name: "windowssac346"
+        address_prefix: "10.0.1.0/24"
+        virtual_network: "{{ network_name }}"
+        
+    - name: Create public IP address
+      azure_rm_publicipaddress:
+        resource_group: "{{ res_group }}"
+        allocation_method: "dynamic"
+        name: "windowssac-ip"
+        domain_name: "ssactest"
+        sku: "basic"        
+        
+    - name: Create VM
+      azure_rm_virtualmachine:
+        resource_group: "{{ res_group }}"
+        name: "windowssac"
+        admin_username: "user-admin-sac-mega"
+        admin_password: "Password1234!"
+        vm_size: "Standard_D2s_v3"
+        virtual_network_name: "{{ network_name }} "
+        started: "yes"
+        os_disk_caching: ReadWrite
+        os_disk_name: "windows_disk_name"
+        os_disk_size_gb: 30
+        os_type: "windows"
+        image:
+          offer: 1903_preview
+          publisher: microsoft-hyperv
+          sku: datacenter-core
+          version: 18342.8.1903011452 
+        
+   - name: Install hyper-v and containers
+     win_feature:
+      include_management_tools: yes
+      include_sub_features: yes
+      name:
+      - Hyper-V
+      - containers
+
+  - name: Reboot 
+    win_reboot:
+    when: win_feature.reboot_required
+    
+  - name: Add DockerMsftProvider
+    win_psmodule:
+      name: DockerMsftProvider
+      repository: PSGallery
+      
+  - name: Run an executable and send data to the stdin for the executable
+    win_command: powershell.exe -
+    args:
+      stdin: Install-Package -Name docker -ProviderName DockerMsftProvider -Force -AcceptLicense
+
+  - name: Reboot
+    win_command: powershell.exe -
+    args:
+      stdin: Restart-Computer -Force
+
+  - name: Start Service
+    win_command: powershell.exe -
+    args:
+      stdin: Start-Service -Name docker; docker image pull mcr.microsoft.com/windows/servercore:1809
+
+    
