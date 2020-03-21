@@ -1,5 +1,5 @@
 ```
-Get-WindowsFeatures 
+Get-WindowsFeature
 Get-WindowsOptionalFeature -online | ft
 
 
