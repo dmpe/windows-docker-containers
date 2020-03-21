@@ -1,3 +1,4 @@
+```
 Get-WindowsFeatures 
 Get-WindowsOptionalFeature -online | ft
 
@@ -8,3 +9,4 @@ Install-WindowsFeature -Name RemoteAccess -IncludeAllSubFeature
 Install-WindowsFeature -Name Remote-Desktop-Services -IncludeAllSubFeature
 
 Enable-WindowsOptionalFeature -Online -FeatureName Containers -All
+```
