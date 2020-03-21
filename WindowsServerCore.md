@@ -26,8 +26,7 @@ Remove-Item .\vs_BuildTools.exe
   
 setx /M PATH $($Env:PATH + ';' + ${Env:ProgramFiles(x86)} + '\Microsoft Visual Studio\2019\BuildTools\MSBuild\15.0\Bin')
 
-
 ```
 Sources:
-
+- https://stackoverflow.com/questions/46684230/visualstudio-build-tools-2017-offline-installer
 - https://gist.github.com/Johlandabee/1387485124a678b9b3c8497090f58a96
