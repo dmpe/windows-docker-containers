@@ -30,3 +30,18 @@ setx /M PATH $($Env:PATH + ';' + ${Env:ProgramFiles(x86)} + '\Microsoft Visual S
 Sources:
 - https://stackoverflow.com/questions/46684230/visualstudio-build-tools-2017-offline-installer
 - https://gist.github.com/Johlandabee/1387485124a678b9b3c8497090f58a96
+
+
+
+## Windows Admin Center
+
+```
+openssl req -x509 -out win-d2fuota0m14.crt -keyout win-d2fuota0m14.key   -newkey rsa:2048 -nodes -sha256   -subj '/CN=win-d2fuota0m14' -extensions EXT -config <( printf "[dn]\nCN=win-d2fuota0m14\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:win-d2fuota0m14\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+
+C:\Program Files\Git\usr\bin\openssl.exe pkcs12 -export -out win-d2fuota0m14.pfx -inkey 'C:\Users\john\Downloads\win-d2fuota0m14.key' -in 'C:\Users\john\Downloads\win-d2fuota0m14.crt'
+
+$credential = Get-Credential -UserName 'Enter password below' -Message 'Enter password below'
+Import-PfxCertificate -FilePath win-d2fuota0m14.pfx -CertStoreLocation Cert:\LocalMachine\My -Password $credential.Password
+```
+ 
+
