@@ -1,1 +1,32 @@
-test
+- name: Install Optional Feature - Containers
+  win_optional_feature:
+    include_parent: yes
+    name: containers
+    state: present
+
+- name: Register Docker Provider with our modified MSFT.json file
+  win_shell: |
+    Register-PackageSource -ProviderName DockerMsftProvider -Name docker_windows -Location .......DockerMsftIndex.json
+
+- name: Install PS Module which provides Docker
+  win_psmodule:
+    name: DockerMsftProvider
+    state: latest
+    repository: nuget-gallery
+
+- name: Add Docker Package from the Module
+  win_shell: |
+    Install-Package -Name docker -ProviderName DockerMsftProvider
+
+- name: Reboot windows server
+  win_reboot:
+    pre_reboot_delay: 10
+    post_reboot_delay: 10
+    test_command: whoami 
+    msg: Reboot initiated by Ansible 
+    connect_timeout: 5 
+
+- name: Restart Docker Service
+  win_service:
+    name: Docker
+    state: restarted
