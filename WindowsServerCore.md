@@ -35,10 +35,12 @@ Sources:
 
 ## Windows Admin Center
 
-```
-openssl req -x509 -out win-d2fuota0m14.crt -keyout win-d2fuota0m14.key   -newkey rsa:2048 -nodes -sha256   -subj '/CN=win-d2fuota0m14' -extensions EXT -config <( printf "[dn]\nCN=win-d2fuota0m14\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:win-d2fuota0m14\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+git openssl must be on path
 
-C:\Program Files\Git\usr\bin\openssl.exe pkcs12 -export -out win-d2fuota0m14.pfx -inkey 'C:\Users\john\Downloads\win-d2fuota0m14.key' -in 'C:\Users\john\Downloads\win-d2fuota0m14.crt'
+```
+openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout win-8irmjn1es50.key -out win-8irmjn1es50.crt -subj "/CN=win-8irmjn1es50" -addext "subjectAltName=DNS:win-8irmjn1es50"
+  
+openssl pkcs12 -export -out win-d2fuota0m14.pfx -inkey 'C:\Users\john\Downloads\win-d2fuota0m14.key' -in 'C:\Users\john\Downloads\win-d2fuota0m14.crt'
 
 $credential = Get-Credential -UserName 'Enter password below' -Message 'Enter password below'
 Import-PfxCertificate -FilePath win-d2fuota0m14.pfx -CertStoreLocation Cert:\LocalMachine\My -Password $credential.Password
