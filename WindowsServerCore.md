@@ -38,12 +38,17 @@ Sources:
 git openssl must be on path
 
 ```
-openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout win-8irmjn1es50.key -out win-8irmjn1es50.crt -subj "/CN=win-8irmjn1es50" -addext "subjectAltName=DNS:win-8irmjn1es50"
+openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout win-8irmjn1es50.key -out win-8irmjn1es50.crt -subj "/CN=win-8irmjn1es50" -addext "subjectAltName=DNS:win-8irmjn1es50" -addext "extendedKeyUsage=serverAuth,clientAuth,codeSigning"
   
 openssl pkcs12 -export -out win-d2fuota0m14.pfx -inkey 'C:\Users\john\Downloads\win-d2fuota0m14.key' -in 'C:\Users\john\Downloads\win-d2fuota0m14.crt'
 
 $credential = Get-Credential -UserName 'Enter password below' -Message 'Enter password below'
 Import-PfxCertificate -FilePath win-d2fuota0m14.pfx -CertStoreLocation Cert:\LocalMachine\My -Password $credential.Password
+
+winrm create winrm/config/listener?Address=IP:xxxx+Transport=HTTPS @{Hostname="win-8irmjn1es50";CertificateThumbprint="";Port="5986"}
+
+New-NetFirewallRule -DisplayName "Windows Remote Management (HTTPS-In)" -Name "Windows Remote Management (HTTPS-In)" -Profile Any -LocalPort 5986 -Protocol TCP
+
 ```
  
 
