@@ -70,7 +70,7 @@ RUN mkdir "%ProgramFiles%\NuGet\latest" `
 # Install VS components
 RUN `
     # Install VS Build Tools
-    && curl -fSLo vs_BuildTools.exe https://aka.ms/vs/17/release/vs_BuildTools.exe `
+    curl -fSLo vs_BuildTools.exe https://aka.ms/vs/17/release/vs_BuildTools.exe `
     && start /w vs_BuildTools ^ `
         --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools" ^ `
         --add Microsoft.Component.ClickOnce.MSBuild ^ `
