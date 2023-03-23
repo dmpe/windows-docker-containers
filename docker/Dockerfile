@@ -13,8 +13,7 @@ ENV `
     NUGET_VERSION=6.4.0 `
     # Install location of Roslyn
     ROSLYN_COMPILER_LOCATION="C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\Roslyn" `
-    COMPLUS_RUNNING_IN_CONTAINER=1 `
-    DOTNET_VERSION=6.0.15
+    COMPLUS_RUNNING_IN_CONTAINER=1
 
 RUN `
     # Install .NET Fx 3.5
@@ -83,7 +82,6 @@ RUN `
         --add Microsoft.Component.ClickOnce.MSBuild ^ `
         --add Microsoft.Net.Component.4.8.SDK ^ `
         --add Microsoft.Net.Component.4.8.1.SDK ^ `
-        --add Microsoft.Net.Component.4.7.2.SDK ^ `
         --add Microsoft.NetCore.Component.Runtime.6.0 ^ `
         --add Microsoft.NetCore.Component.Runtime.7.0 ^ `
         --add Microsoft.NetCore.Component.SDK ^ `
@@ -120,6 +118,7 @@ RUN powershell setx /M PATH $(${Env:PATH} `
     + \";${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\amd64\" `
     + \";${Env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\" `
     + \";${Env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8.1 Tools\" `
+    + \";${Env:ProgramFiles}\MinGit\cmd\" `
     + \";${Env:ProgramFiles(x86)}\Microsoft SDKs\ClickOnce\SignTool\")
 
 # Install Targeting Packs
@@ -142,34 +141,16 @@ RUN powershell -Command `
         $ProgressPreference = 'SilentlyContinue'; `
         `
         Invoke-WebRequest -OutFile mingit.zip https://github.com/git-for-windows/git/releases/download/v2.40.0.windows.1/MinGit-2.40.0-64-bit.zip; `
-        $mingit_sha256 = 'f3e898f8856e80c66b367c80396c6debc46ae0b258ab9fd00ee08b4812c8f987'; `
-        if ((Get-FileHash mingit.zip -Algorithm sha256).Hash -ne $mingit_sha256) { `
-            Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
-            exit 1; `
-        }; `
         mkdir $Env:ProgramFiles\MinGit; `
         tar -oxzf mingit.zip -C $Env:ProgramFiles\MinGit; `
         Remove-Item -Force mingit.zip
 
-RUN powershell -Command `
-        $ErrorActionPreference = 'Stop'; `
-        $ProgressPreference = 'SilentlyContinue'; `
-        Invoke-WebRequest `
-            -UseBasicParsing `
-            -Uri https://dot.net/v1/dotnet-install.ps1 `
-            -OutFile dotnet-install.ps1; `
-        ./dotnet-install.ps1 `
-            -InstallDir '/Program Files/dotnet' `
-            -Channel 6.0 `
-            -Runtime dotnet; `
-        ./dotnet-install.ps1 `
-            -InstallDir '/Program Files/dotnet' `
-            -Channel 7.0 `
-            -Runtime dotnet; `
-        Remove-Item -Force dotnet-install.ps1 `
-    && setx /M PATH "%PATH%;C:\Program Files\dotnet"
+RUN dotnet tool install -g PowerShell `
+    && dotnet nuget locals all --clear
 
-RUN dotnet tool install --tool-path $Env:ProgramFiles\powershell PowerShell; `
-    & $Env:ProgramFiles\dotnet\dotnet nuget locals all --clear;
-
-RUN setx /M PATH "%PATH%;C:\Program Files\MinGit\cmd;C:\Program Files\powershell"
+RUN curl -fSLo ndp48-x86-x64-allos-deu.exe "https://go.microsoft.com/fwlink/?LinkId=2085167&clcid=0x407" `
+  && curl -fSLo ndp462-devpack-kb3151934-deu.exe "https://go.microsoft.com/fwlink/?LinkId=780616&clcid=0x407" `
+  && start /w ndp48-x86-x64-allos-deu /q /norestart /skipenucheck /ChainingPackage FullX64ClickOnce `
+  && start /w ndp462-devpack-kb3151934-deu /q /norestart /skipenucheck /ChainingPackage FullX64ClickOnce `
+  && del ndp48-x86-x64-allos-deu.exe `
+  && del ndp462-devpack-kb3151934-deu.exe
